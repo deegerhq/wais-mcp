@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wais-mcp"
+version = "0.2.0"
+description = "Universal WAIS MCP server — 5 tools for any WAIS-compatible site"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.10"
+authors = [
+    {name = "Deeger", email = "hello@deeger.io"},
+]
+keywords = ["ai", "agents", "mcp", "wais", "authentication"]
+dependencies = [
+    "wais-pod>=0.2.0",
+    "mcp>=1.0.0",
+    "httpx>=0.25.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-asyncio",
+    "ruff",
+]
+
+[project.scripts]
+wais-mcp = "wais_mcp.server:main"
+
+[project.urls]
+Homepage = "https://deeger.io"
+Repository = "https://github.com/deegerhq/wais-mcp"
+
+[tool.setuptools.packages.find]
+include = ["wais_mcp*"]
