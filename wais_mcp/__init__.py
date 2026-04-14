@@ -1,3 +1,8 @@
-"""Universal WAIS MCP server — 5 tools for any WAIS-compatible site."""
+"""Universal WAIS MCP server and SDK for any WAIS-compatible site."""
 
-__version__ = "0.2.0"
+__version__ = "0.2.1"
+
+from .client import WAISClient
+from .manifest import WAISManifest
+
+__all__ = ["WAISClient", "WAISManifest"]

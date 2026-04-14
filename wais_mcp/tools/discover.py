@@ -1,9 +1,6 @@
 """Tool: wais_discover — Find what a WAIS-compatible site offers."""
 
-import httpx
-
-from ..manifest import WAISManifest
-from ..session import store_manifest
+from .._tool_client import get_client
 
 
 async def wais_discover(site_url: str) -> str:
@@ -20,15 +17,14 @@ async def wais_discover(site_url: str) -> str:
     Args:
         site_url: The site's URL (e.g. "https://serphub.deeger.io").
     """
-    url = f"{site_url.rstrip('/')}/.well-known/agents.json"
-    async with httpx.AsyncClient(timeout=10.0) as client:
-        resp = await client.get(url)
-        if resp.status_code == 404:
-            return f"Site {site_url} does not have agents.json — it may not support WAIS."
-        resp.raise_for_status()
+    client = get_client()
 
-    manifest = WAISManifest.from_dict(resp.json())
-    store_manifest(site_url, manifest)
+    try:
+        manifest = await client.discover(site_url)
+    except Exception as e:
+        if "404" in str(e):
+            return f"Site {site_url} does not have agents.json — it may not support WAIS."
+        raise
 
     lines = [
         f"# {manifest.name}",
@@ -55,7 +51,6 @@ async def wais_discover(site_url: str) -> str:
         currencies = ", ".join(manifest.payment.get("currencies", []))
         lines.append(f"Payment: {providers} ({currencies})")
 
-    # ── Actions ──
     actions = manifest.list_actions()
     if actions:
         lines.append("")
@@ -101,7 +96,6 @@ async def wais_discover(site_url: str) -> str:
                         extra = f", {pdesc}"
                     lines.append(f"      - {pname}: {ptype}{req}{extra}")
     else:
-        # Legacy format: scopes
         scopes = manifest.raw.get("scopes", {})
         if scopes:
             lines.append("")

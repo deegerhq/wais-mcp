@@ -2,11 +2,7 @@
 
 import json
 
-import httpx
-
-from ..auth import auth_headers
-from ..http import safe_request
-from ..session import get_manifest, get_token
+from .._tool_client import get_client
 
 
 async def wais_status(site_url: str) -> str:
@@ -18,34 +14,18 @@ async def wais_status(site_url: str) -> str:
     Args:
         site_url: The site.url from agents.json.
     """
-    manifest = await get_manifest(site_url)
-    site_identity = manifest.site_url or site_url
-    scopes = manifest.get_all_scopes()
-    token = await get_token(site_identity, scopes)
+    client = get_client()
+    manifest = await client._get_manifest(site_url)
 
-    status_action = manifest.get_action("get_usage") or manifest.get_action("status")
-    if status_action:
-        endpoint = status_action.get("endpoint", "/wais/api/status")
-        method = status_action.get("method", "GET").upper()
-    else:
-        endpoint = "/wais/api/status"
-        method = "GET"
-
-    full_url = f"{manifest.api_base_url.rstrip('/')}{endpoint}"
-
-    async with httpx.AsyncClient(timeout=10.0) as client:
-        resp = await safe_request(
-            client, method, full_url,
-            headers=auth_headers(token, method, full_url),
-            **({"json": {}} if method != "GET" else {}),
-        )
-
-        if resp.status_code == 404:
+    try:
+        data = await client.status(manifest)
+    except Exception as e:
+        err = str(e)
+        if "404" in err:
             return f"No status endpoint at {site_url}. Check agents.json actions for alternatives like 'get_usage'."
-        if resp.status_code in (401, 403):
+        if "401" in err or "403" in err:
             return f"Not authenticated at {site_url}. Register first with wais_register."
-        resp.raise_for_status()
-        data = resp.json()
+        raise
 
     lines = []
     if "plan" in data:

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "wais-mcp"
-version = "0.2.0"
+version = "0.2.1"
 description = "Universal WAIS MCP server — 5 tools for any WAIS-compatible site"
 readme = "README.md"
 license = {text = "MIT"}

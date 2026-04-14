@@ -162,12 +162,46 @@ File: `.vscode/mcp.json` (project) or via Command Palette: `MCP: Open User Confi
 
 > Note: VS Code uses `servers` instead of `mcpServers`, and requires the `type` field.
 
+## Usage without MCP (Python SDK)
+
+For custom agents, scripts, or any Python code — no MCP client needed:
+
+```python
+import asyncio
+from wais_mcp import WAISClient
+
+async def main():
+    client = WAISClient(api_key="your-api-key")
+
+    # 1. Discover what the site offers
+    site = await client.discover("https://serphub.deeger.io")
+    print(site.name, site.list_action_ids())
+
+    # 2. Register (shares only required claims via SD-JWT)
+    await client.register(site)
+
+    # 3. Execute actions
+    result = await client.execute(site, "search", {"query": "python"})
+    print(result)
+
+    # 4. Confirm high-risk actions (if 402 returned)
+    # result = await client.confirm(site, challenge_id)
+
+    # 5. Check account status
+    status = await client.status(site)
+    print(status)
+
+asyncio.run(main())
+```
+
+Works with OpenAI SDK, LangChain, CrewAI, or any Python agent framework.
+
 ## How It Works
 
-1. **Discover** — `wais_discover("https://example.com")` fetches `/.well-known/agents.json`
-2. **Register** — `wais_register("https://example.com")` shares only required claims via SD-JWT
-3. **Execute** — `wais_execute("https://example.com", "search", {"query": "python"})` handles tokens, DPoP, and routing automatically
-4. **Confirm** — If an action returns a 402 challenge, `wais_confirm` handles polling
+1. **Discover** — Fetches `/.well-known/agents.json` from a site
+2. **Register** — Shares only required claims via SD-JWT selective disclosure
+3. **Execute** — Handles tokens, DPoP, endpoint resolution, and async polling automatically
+4. **Confirm** — Polls for completion after 402 confirmation challenges
 5. **Status** — Check credits and plan info
 
 All authentication (PoD tokens, DPoP proofs) is handled transparently.
