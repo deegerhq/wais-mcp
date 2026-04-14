@@ -27,7 +27,7 @@ dev = [
 ]
 
 [project.scripts]
-wais-mcp = "wais_mcp.server:main"
+wais-mcp = "wais_mcp.cli:main"
 
 [project.urls]
 Homepage = "https://deeger.io"
