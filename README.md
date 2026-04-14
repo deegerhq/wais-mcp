@@ -14,15 +14,18 @@ Works with Claude, ChatGPT, Gemini, Cursor, Windsurf, VS Code Copilot, and any M
 | `wais_confirm` | Confirm high-risk actions or complete payments (402 flow) |
 | `wais_status` | Check account status, plan, and credits |
 
-## Install
+## Quick Start
 
 ```bash
 pip install wais-mcp
+wais-mcp init
 ```
 
-## Setup by Provider
+The setup wizard will ask you to pick your provider (Claude, ChatGPT, Cursor, etc.), choose project or global scope, and enter your API key. It writes the correct config file automatically.
 
-All providers use the same `wais-mcp` command — only the config file location and format differ.
+## Manual Setup by Provider
+
+If you prefer to configure manually, all providers use the same `wais-mcp` command — only the config file location and format differ.
 
 ### Claude Desktop
 
